@@ -3,7 +3,9 @@ define dns::record::a (
   $data,
   $ttl = '',
   $ptr = false,
-  $host = $name ) {
+  $host = $name,
+  $netmask = 24,
+) {
 
   $alias = "${host},A,${zone}"
 
@@ -16,10 +18,11 @@ define dns::record::a (
 
   if $ptr {
     $ip = inline_template('<%= @data.kind_of?(Array) ? @data.first : @data %>')
-    $reverse_zone = inline_template('<%= @ip.split(".")[0..-2].reverse.join(".") %>.IN-ADDR.ARPA')
-    $octet = inline_template('<%= @ip.split(".")[-1] %>')
+    $reverse_zone = inline_template("<%= require 'ipaddr'; IPAddr.new(ip).reverse.split('.')[1..-1].join('.') %>")
+    $last_octet = inline_template("<%= @ip.split('.').last %>")
 
-    dns::record::ptr { $octet:
+    dns::record::ptr { "${host}.${zone}":
+      host => $last_octet,
       zone => $reverse_zone,
       data => "${host}.${zone}"
     }

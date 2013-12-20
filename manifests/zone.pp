@@ -8,7 +8,6 @@ define dns::zone (
   $zone_expire = '2419200',
   $zone_minimum = '604800',
   $nameservers = [ $::fqdn ],
-  $reverse = false,
   $zone_type = 'master',
   $allow_transfer = [],
   $slave_masters = undef,
@@ -28,8 +27,9 @@ define dns::zone (
     default => $name
   }
 
-  $zone_file = "/etc/bind/zones/db.${name}"
+  $zone_file = "${::dns::conf_dir}/db.${name}"
 
+=======
   if $ensure == absent {
     file { $zone_file:
       ensure => absent,
@@ -37,10 +37,10 @@ define dns::zone (
   } else {
     # Zone Database
     concat { $zone_file:
-      owner   => 'bind',
-      group   => 'bind',
-      mode    => '0644',
-      require => [Class['concat::setup'], Class['dns::server']],
+      owner   => $::dns::user_name, 
+      group   => $::dns::user_name,
+      mode    => 0644,
+      require => [Class['concat::setup'], Class['dns::server::install']],
       notify  => Class['dns::server::service']
     }
     concat::fragment{"db.${name}.soa":
@@ -53,8 +53,8 @@ define dns::zone (
   # Include Zone in named.conf.local
   concat::fragment{"named.conf.local.${name}.include":
     ensure  => $ensure,
-    target  => '/etc/bind/named.conf.local',
-    order   => 3,
+    target  => $::dns::named_conf_local,
+    order   => 2,
     content => template("${module_name}/zone.erb")
   }
 

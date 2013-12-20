@@ -1,6 +1,7 @@
 class dns::server::service inherits dns::server::params {
 
-  service { $service:
+  service { 'bind9':
+    name       => $::dns::service_name,
     ensure     => running,
     hasstatus  => true,
     hasrestart => true,
