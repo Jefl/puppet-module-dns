@@ -1,45 +1,41 @@
-
-//
-// named.conf
-//
-// Provided by Red Hat bind package to configure the ISC BIND named(8) DNS
-// server as a caching only nameserver (as a localhost DNS resolver only).
-//
-// See /usr/share/doc/bind*/sample/ for example named configuration files.
-//
-
 options {
-        listen-on port 53 { any; };
-        listen-on-v6 port 53 { any; };
-        directory       "/var/named";
-        dump-file       "/var/named/data/cache_dump.db";
-        statistics-file "/var/named/data/named_stats.txt";
-        memstatistics-file "/var/named/data/named_mem_stats.txt";
-        allow-query     { any; };
-		recursion yes;
+    directory       "/var/named";
+    dump-file       "/var/named/data/cache_dump.db";
+    statistics-file "/var/named/data/named_stats.txt";
+    memstatistics-file "/var/named/data/named_mem_stats.txt";
+    bindkeys-file "/etc/named.iscdlv.key";
+    managed-keys-directory "/var/named/dynamic";
 
-		forwarders { 193.218.104.190; 193.218.103.253; };
+    dnssec-enable no;
+    dnssec-validation no;
+    dnssec-lookaside auto;
 
-        dnssec-enable no;
-        dnssec-validation no;
-        dnssec-lookaside auto;
+    listen-on port 53 { any; };
+    listen-on-v6 port 53 { none; };
 
-        /* Path to ISC DLV key */
-        bindkeys-file "/etc/named.iscdlv.key";
+    allow-query     { any; };
+    recursion yes;
 
-        managed-keys-directory "/var/named/dynamic";
+<%- if scope['::dns::forwarders'].any? -%>
+    forwarders {
+    <%- scope['::dns::forwarders'].each do |forwarder| -%>
+        <%= forwarder -%>;
+    <%- end -%>
+    };
+<%- end -%>
+
 };
 
 logging {
-        channel default_debug {
-                file "data/named.run";
-                severity dynamic;
-        };
+    channel default_debug {
+        file "data/named.run";
+        severity dynamic;
+    };
 };
 
 zone "." IN {
-        type hint;
-        file "named.ca";
+    type hint;
+    file "named.ca";
 };
 
 include "/etc/named.rfc1912.zones";

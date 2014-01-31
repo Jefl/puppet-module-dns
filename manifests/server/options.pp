@@ -18,15 +18,13 @@
 define dns::server::options inherits dns::server::params (
   $forwarders = [],
 ) {
-
   file { $title:
     ensure  => present,
     owner   => $owner,
     group   => $group,
     mode    => '0644',
     require => [File[${cfg_dir}], Class['dns::server::install']],
-	content => template("${module_name}/named.conf.options.erb"),
+    content => template("${module_name}/named.conf.options.erb"),
     notify  => Class['dns::server::service'],
   }
-
 }
