@@ -14,7 +14,7 @@ options {
     listen-on-v6 port 53 { none; };
 
     allow-query     { any; };
-    recursion yes;
+    recursion <%= scope['::dns::recursion'] ? 'yes' : 'no' %>;
 
 <%- if scope['::dns::forwarders'].any? -%>
     forwarders {

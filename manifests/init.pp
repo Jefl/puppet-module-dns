@@ -5,6 +5,7 @@ class dns (
   $named_conf_template = $dns::params::named_conf_template,
   $named_conf_options_template = $dns::params::named_conf_options_template
   $forwarders = [],
+  $recursion = true,
 ) inherits dns::params {
   include dns::server
 }
