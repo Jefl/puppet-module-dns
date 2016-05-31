@@ -38,6 +38,17 @@ zone "." IN {
     file "named.ca";
 };
 
+zone "media.int" {
+   // Special zone managed by CSP IT (SRG)
+   // required to resolve polisapi.media.int for example
+   type forward;
+   forward only;
+   forwarders {
+       10.131.129.10; // zh-ns1.media.int
+       10.157.129.10; // be-ns1.media.int
+   };
+};
+
 include "/etc/named.rfc1912.zones";
 include "/etc/named.root.key";
 include "/etc/named.conf.local";
